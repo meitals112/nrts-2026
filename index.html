@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NRTS — Neutral Response Training System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0D0D0D;
+      --dark: #1A1A1A;
+      --mid: #555555;
+      --grey: #888888;
+      --rule: #CCCCCC;
+      --bg: #F4F4F2;
+      --white: #FFFFFF;
+      --accent: #2A2A2A;
+      --stamp: #B0B0A8;
+      --font-body: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+      --font-mono: "Courier New", Courier, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--dark);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── SITE HEADER ── */
+    .site-header {
+      background: var(--black);
+      color: #BFBFB8;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      letter-spacing: 0.04em;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      border-bottom: 1px solid #333;
+    }
+    .site-header .org {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .site-header .org-primary {
+      color: #E0E0D8;
+      font-size: 11px;
+      font-weight: normal;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .site-header .org-secondary {
+      color: #888880;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+    .site-header .ref {
+      font-size: 10px;
+      color: #666660;
+      text-align: right;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--white);
+      border-bottom: 2px solid var(--black);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      height: 44px;
+      gap: 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav a {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    nav a:hover { color: var(--black); border-bottom-color: var(--black); }
+    .nav-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--stamp);
+      text-transform: uppercase;
+      margin-left: auto;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main { max-width: 860px; margin: 0 auto; padding: 60px 40px 100px; }
+
+    /* ── HERO ── */
+    .hero {
+      border-left: 3px solid var(--black);
+      padding: 32px 0 32px 32px;
+      margin-bottom: 60px;
+    }
+    .hero-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--stamp);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .hero-sub {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--mid);
+      letter-spacing: 0.04em;
+      margin-bottom: 24px;
+    }
+    .hero-tagline {
+      font-size: 14px;
+      font-style: italic;
+      color: var(--mid);
+      border-top: 1px solid var(--rule);
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    /* ── SECTION ── */
+    section { margin-bottom: 64px; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--stamp);
+      margin-bottom: 6px;
+    }
+    .section-rule {
+      border: none;
+      border-top: 2px solid var(--black);
+      margin-bottom: 24px;
+    }
+    .section-rule-light {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 32px 0;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: var(--dark);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    em { font-style: italic; }
+
+    /* ── IMAGE GRID ── */
+    .image-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .image-grid.single { grid-template-columns: 1fr; }
+    .image-slot {
+      background: #E8E8E4;
+      border: 1px solid var(--rule);
+      aspect-ratio: 4/3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .image-slot .caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(13,13,13,0.75);
+      color: #C8C8C0;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      padding: 6px 10px;
+      text-transform: uppercase;
+    }
+    .image-placeholder-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--stamp);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ── VIDEO ── */
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--black);
+      border: 1px solid #333;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .video-placeholder {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .video-placeholder-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #666660;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .video-note {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: #444440;
+      margin-top: 6px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── METADATA TABLE ── */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .meta-table td {
+      padding: 7px 12px 7px 0;
+      border-bottom: 1px solid #E4E4E0;
+      vertical-align: top;
+    }
+    .meta-table td:first-child {
+      color: var(--stamp);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 9px;
+      width: 160px;
+      padding-top: 9px;
+    }
+    .meta-table td:last-child { color: var(--dark); }
+
+    /* ── KEYWORDS ── */
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .keyword {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--rule);
+      padding: 4px 8px;
+      background: var(--white);
+    }
+
+    /* ── CERTIFICATION STAMP ── */
+    .cert-block {
+      border: 1px solid var(--rule);
+      background: var(--white);
+      padding: 24px 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-top: 8px;
+    }
+    .cert-stamp {
+      width: 56px;
+      height: 56px;
+      border: 2px solid var(--stamp);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--stamp);
+      letter-spacing: 0.06em;
+      text-align: center;
+      line-height: 1.3;
+      text-transform: uppercase;
+    }
+    .cert-text { flex: 1; }
+    .cert-text p { font-size: 13px; line-height: 1.6; }
+
+    /* ── BIO ── */
+    .bio-block {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .bio-photo {
+      background: #E0E0DC;
+      border: 1px solid var(--rule);
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bio-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .bio-photo-placeholder {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--stamp);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px;
+    }
+
+    /* ── CLOSING QUOTE ── */
+    .closing-quote {
+      border-top: 2px solid var(--black);
+      border-bottom: 2px solid var(--black);
+      padding: 32px 0;
+      margin: 64px 0 0;
+      text-align: center;
+    }
+    .closing-quote blockquote {
+      font-size: 18px;
+      font-style: italic;
+      color: var(--black);
+      letter-spacing: 0.01em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      color: #555550;
+      padding: 32px 40px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.07em;
+      line-height: 1.8;
+      text-transform: uppercase;
+    }
+    footer .footer-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    footer .footer-col { flex: 1; }
+    footer .footer-heading {
+      color: #888880;
+      margin-bottom: 8px;
+      font-size: 8px;
+      letter-spacing: 0.14em;
+    }
+
+    /* ── UTILITIES ── */
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--mid);
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 40px 20px 80px; }
+      .site-header { padding: 0 20px; }
+      nav { padding: 0 20px; gap: 20px; overflow-x: auto; }
+      .hero { padding: 24px 0 24px 20px; }
+      .image-grid { grid-template-columns: 1fr; }
+      .bio-block { grid-template-columns: 1fr; }
+      .bio-photo { aspect-ratio: 3/2; max-width: 160px; }
+      footer .footer-inner { flex-direction: column; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SITE HEADER -->
+<header class="site-header">
+  <div class="org">
+    <span class="org-primary">National Behavioral Standards Authority</span>
+    <span class="org-secondary">Department of Labour and Workforce Development</span>
+  </div>
+  <div class="ref">
+    Provider ID: NRTS-2026-GR<br>
+    Accreditation Status: Active
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a href="#overview">Overview</a>
+  <a href="#documentation">Documentation</a>
+  <a href="#system">System</a>
+  <a href="#process">Process</a>
+  <a href="#artist">Artist</a>
+  <span class="nav-label">NBSA Accredited Provider</span>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero" id="overview">
+    <div class="hero-meta">Interactive Installation &nbsp;/&nbsp; Speculative Design &nbsp;/&nbsp; 2026</div>
+    <h1>NRTS<br>Neutral Response Training System</h1>
+    <div class="hero-sub">Graduate Submission &mdash; ACM SIGGRAPH Digital Arts Community 2026<br>Digital Arts Student Competition &mdash; Speculative Futures</div>
+    <div class="hero-tagline">&ldquo;Emotion is optional. Workflow is mandatory.&rdquo;</div>
+  </div>
+
+  <!-- ARTWORK INFORMATION -->
+  <section>
+    <div class="section-label">Artwork Information</div>
+    <hr class="section-rule" />
+    <table class="meta-table">
+      <tr><td>Title</td><td>NRTS &mdash; Neutral Response Training System</td></tr>
+      <tr><td>Year</td><td>2026</td></tr>
+      <tr><td>Category</td><td>Graduate</td></tr>
+      <tr><td>Type of Work</td><td>Interactive Art</td></tr>
+      <tr><td>Keywords</td><td>
+        <div class="keywords" style="margin-top:4px;">
+          <span class="keyword">Speculative Design</span>
+          <span class="keyword">Affective Computing</span>
+          <span class="keyword">Behavioral Compliance</span>
+          <span class="keyword">Biometric Surveillance</span>
+          <span class="keyword">Self-Regulation as Control Problem</span>
+          <span class="keyword">Interactive Installation</span>
+          <span class="keyword">Institutional Critique</span>
+          <span class="keyword">Emotional Labor</span>
+          <span class="keyword">Conflict as Performance Failure</span>
+          <span class="keyword">Bureaucratic Fiction</span>
+        </div>
+      </td></tr>
+    </table>
+  </section>
+
+  <!-- REPRESENTATIVE IMAGE -->
+  <section id="documentation">
+    <div class="section-label">Representative Image</div>
+    <hr class="section-rule" />
+    <div class="image-grid single">
+      <div class="image-slot" style="aspect-ratio:16/9;">
+        <!-- Replace src with your actual image path -->
+        <!-- <img src="images/installation_view.jpg" alt="NRTS Installation View" /> -->
+        <span class="image-placeholder-label">Installation view<br>[ replace with image ]</span>
+        <div class="caption">Fig. 01 &mdash; Installation View, NRTS Clinic Station</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHORT DESCRIPTION -->
+  <section>
+    <div class="section-label">Overview</div>
+    <hr class="section-rule" />
+    <p>In this future, most labor has been replaced by automated systems. The Department of Labour, responding to structural unemployment, commissioned research to identify what human workers could offer that automated systems could not &mdash; and what factors predicted human retention in hybrid workplaces. The findings were narrow. Emotional variability predicted conflict, absenteeism, and workflow disruption. Emotional stability predicted retention. The Department formalized the outcome: to remain certifiably employable, a human worker must demonstrate behavioral stability within measurable parameters. NRTS issues that certification.</p>
+    <p>The system does not ask what the participant feels. It measures what the participant produces.</p>
+  </section>
+
+  <!-- VIDEO -->
+  <section>
+    <div class="section-label">Documentation Film</div>
+    <hr class="section-rule" />
+    <div class="video-container">
+      <!-- To embed your video, replace the placeholder div below with an iframe.
+           Vimeo example:
+           <iframe src="https://player.vimeo.com/video/YOUR_VIDEO_ID" allowfullscreen></iframe>
+           YouTube example:
+           <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allowfullscreen></iframe>
+      -->
+      <div class="video-placeholder">
+        <div class="video-placeholder-label">Documentation Film<br>[ paste Vimeo or YouTube embed URL ]</div>
+        <div class="video-note">Artist undergoing the process &mdash; film documentation</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTIST STATEMENT -->
+  <section>
+    <div class="section-label">Artist Statement</div>
+    <hr class="section-rule" />
+    <p>Self-regulation is intimate: you feel something, attempt to understand it, and that understanding shapes how you act. NRTS proposes that this process is unnecessary.</p>
+    <p>NRTS &mdash; Neutral Response Training System is a speculative interactive installation staged as a clinical training service. Participants enter a fake clinic, sign a consent form, undergo biometric calibration, and are exposed to an uncomfortable conflict scenario. The system measures facial expression, vocal pitch, response timing, valence, arousal, and dominance. It does not ask what the participant feels. It trains what the participant produces.</p>
+    <p>The installation examines an assumption embedded in affective computing and behavioral management systems: that interaction can be regulated without engaging the interior at all. The question is not &ldquo;can emotion be suppressed?&rdquo; but &ldquo;does emotion need to exist?&rdquo;</p>
+    <p>In this future, workplaces schedule neutral-response training annually &mdash; a compliance requirement, processed like any other. At home, conflict is not resolved; it is outperformed. The household functions as an economic unit. No one is asked to stop feeling. They are trained to produce correct responses regardless of what they feel. The interior becomes operationally irrelevant. Feeling is not forbidden. It is simply costly.</p>
+    <p>Participants receive a score. They are certified, or they are not.</p>
+  </section>
+
+  <!-- SYSTEM DOCUMENTATION (additional images) -->
+  <section id="system">
+    <div class="section-label">System Documentation</div>
+    <hr class="section-rule" />
+    <div class="image-grid">
+      <div class="image-slot">
+        <!-- <img src="images/biometric_interface.jpg" alt="Biometric Interface" /> -->
+        <span class="image-placeholder-label">Biometric interface<br>/ score screen</span>
+        <div class="caption">Fig. 02 &mdash; Biometric Interface</div>
+      </div>
+      <div class="image-slot">
+        <!-- <img src="images/certification_label.jpg" alt="Printed Certification Label" /> -->
+        <span class="image-placeholder-label">Printed certification<br>label</span>
+        <div class="caption">Fig. 03 &mdash; Certification Label (Brother QL-700)</div>
+      </div>
+      <div class="image-slot">
+        <!-- <img src="images/consent_form.jpg" alt="Consent Form Station" /> -->
+        <span class="image-placeholder-label">Consent form<br>station</span>
+        <div class="caption">Fig. 04 &mdash; Consent Form, NBSA §4.7(b)</div>
+      </div>
+      <div class="image-slot">
+        <!-- <img src="images/clinic_signage.jpg" alt="Clinic Environment" /> -->
+        <span class="image-placeholder-label">Clinic environment<br>/ institutional signage</span>
+        <div class="caption">Fig. 05 &mdash; Clinic Environment</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="section-label">Project Description</div>
+    <hr class="section-rule" />
+    <p>In this future, most labor has been replaced by automated systems. The Department of Labour, responding to structural unemployment, commissioned research to identify what human workers could offer that automated systems could not &mdash; and what factors predicted human retention in hybrid workplaces. The findings were narrow. Emotional variability predicted conflict, absenteeism, and workflow disruption. Emotional stability predicted retention. The Department formalized the outcome: to remain certifiably employable, a human worker must demonstrate behavioral stability within measurable parameters. NRTS issues that certification.</p>
+    <p>The logic extends beyond the workplace. Emotional conflict &mdash; whether in a performance review or a domestic dispute &mdash; produces quantifiable downstream costs. Divorce generates legal proceedings, housing instability, and welfare dependency. Parental emotional dysregulation generates unnecessary conflict with children and predicts psychiatric intervention. The government&rsquo;s interest in stable families is fiscal, not moral. The family is infrastructure. Infrastructure requires maintenance.</p>
+    <p>NRTS &mdash; Neutral Response Training System is a speculative interactive installation staged as a fake clinical training service, operating as an accredited provider under the National Behavioral Standards Authority. Participants arrive at a simulated clinic, sign a consent form, and undergo biometric calibration. The system exposes them to an uncomfortable conflict scenario and instructs them to practice a prescribed neutral response. Facial expression, vocal pitch, response timing, valence, arousal, and dominance are measured continuously. A coherence/neutrality score is calculated. A certification label is printed. The system does not ask what the participant feels. It measures what the participant produces.</p>
+    <p>The neuroscience is instructive. Automatic emotional responses &mdash; the amygdala firing within 20 milliseconds of a stimulus &mdash; cannot be trained away. What NRTS targets is the subsequent step: the prefrontal activation that converts that response into a conscious feeling, analyzes its meaning, and attempts regulation. That processing is expensive. It consumes attention, creates delay, and occupies capacity that could be allocated elsewhere. The system does not fight the interior. It routes around it. The amygdala fires. The signal is registered. Nothing is done with it.</p>
+    <p>In a world where everyone produces calibrated responses, you can no longer tell the difference between someone who is fine and someone performing fine. Eventually neither can they. The distinction between feeling and output collapses &mdash; not because feeling disappears, but because it stops mattering to the interaction. What you actually feel becomes private data with no interface. The texture of this future is not hostile. It is frictionlessly empty.</p>
+  </section>
+
+  <!-- TECHNICAL INFORMATION -->
+  <section>
+    <div class="section-label">Technical Information</div>
+    <hr class="section-rule" />
+    <p>NRTS runs on a dedicated workstation with webcam and microphone input. Facial landmark tracking and emotion recognition are implemented using MediaPipe and a pre-trained affect classification model. Voice analysis captures pitch, flow, and stability in real time via Web Audio API. VAD-inspired metrics &mdash; valence, arousal, dominance &mdash; are computed from combined biometric inputs and aggregated into a coherence/neutrality score. A Brother QL-700 label printer outputs printed certification upon session completion. The installation also includes a custom-authored introductory film, physical consent form station, and institutional signage. All components operate as a unified bureaucratic system.</p>
+    <hr class="section-rule-light" />
+    <div class="cert-block">
+      <div class="cert-stamp">NBSA<br>Accredited</div>
+      <div class="cert-text">
+        <p class="mono">Session Components: Introductory film &mdash; Consent form &mdash; Biometric calibration &mdash; Conflict scenario exposure &mdash; Neutral response practice &mdash; Coherence/neutrality score &mdash; Printed certification label</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTIST BIO -->
+  <section id="artist">
+    <div class="section-label">Artist</div>
+    <hr class="section-rule" />
+    <div class="bio-block">
+      <div class="bio-photo">
+        <!-- <img src="images/artist_photo.jpg" alt="Meital Geva" /> -->
+        <span class="bio-photo-placeholder">Artist photo<br>[ replace ]</span>
+      </div>
+      <div>
+        <p>Meital Geva is a graduate artist and researcher working at the intersection of speculative design, institutional critique, and interactive systems. Her practice examines how technological infrastructures extend bureaucratic logic into affective and bodily experience &mdash; particularly in workplace, domestic, and compliance contexts. Her work takes the form of fake institutions, scored interactions, and systems that measure what bodies produce rather than what people feel. She is currently completing graduate studies at Bezalel Academy of Arts and Design. NRTS &mdash; Neutral Response Training System is her most recent installation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING QUOTE -->
+  <div class="closing-quote">
+    <blockquote>&ldquo;Things are simpler when you do not feel.&rdquo;</blockquote>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="footer-heading">Provider</div>
+      NRTS &mdash; Neutral Response Training System<br>
+      Accredited Provider ID: NRTS-2026-GR<br>
+      National Behavioral Standards Authority (NBSA)
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Regulatory Framework</div>
+      Department of Labour and Workforce Development<br>
+      Workforce Code &sect;4.7(b) &mdash; Labour Code &sect;12.3(a)<br>
+      NBSA Data Handling Protocol &mdash; 7-Year Retention
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Submission</div>
+      ACM SIGGRAPH Digital Arts Community 2026<br>
+      Digital Arts Student Competition<br>
+      Speculative Futures &mdash; Graduate Category
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
